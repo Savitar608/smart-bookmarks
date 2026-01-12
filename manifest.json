@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Smart Bookmarks",
+  "version": "1.0",
+  "permissions": ["bookmarks", "storage"],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": false
+  }
+}
