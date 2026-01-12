@@ -76,7 +76,16 @@ document.getElementById('testBtn').addEventListener('click', async () => {
   const res = await getCategoryFromAI(title, url);
   
   if (res) {
-    resultBox.innerHTML = `<strong>AI Suggestion:</strong>\n📂 ${res}`;
+    resultBox.textContent = ''; // Clear previous text safely
+
+    const label = document.createElement('strong');
+    label.textContent = 'AI Suggestion:';
+
+    const text = document.createTextNode(`\n📂 ${res}`);
+
+    resultBox.appendChild(label);
+    resultBox.appendChild(text);
+
     resultBox.style.borderLeft = "4px solid green";
   } else {
     // resultBox.textContent = "Failed. Check Console/API Key.";
