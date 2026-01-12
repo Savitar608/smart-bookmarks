@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Smart Bookmarks",
   "version": "1.0",
+  "description": "Automatically organizes bookmarks using AI.",
   "permissions": ["bookmarks", "storage"],
   "background": {
     "scripts": ["src/background/service-worker.js"],
