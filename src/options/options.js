@@ -4,7 +4,7 @@ import { getCategoryFromAI } from '../utils/ai-classifier.js';
 const defaultSettings = {
   provider: 'openai',
   keys: { openai: '', gemini: '', deepseek: '', ollama: 'http://localhost:11434' },
-  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-1.5-flash', deepseek: 'deepseek-chat', ollama: 'llama3' }
+  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', ollama: 'llama3' }
 };
 
 let currentSettings = { ...defaultSettings };
@@ -79,7 +79,9 @@ document.getElementById('testBtn').addEventListener('click', async () => {
     resultBox.innerHTML = `<strong>AI Suggestion:</strong>\n📂 ${res}`;
     resultBox.style.borderLeft = "4px solid green";
   } else {
-    resultBox.textContent = "Failed. Check Console/API Key.";
+    // resultBox.textContent = "Failed. Check Console/API Key.";
+    // resultBox.style.borderLeft = "4px solid red";
+    resultBox.textContent = "Error: " + err.message;
     resultBox.style.borderLeft = "4px solid red";
   }
 });
