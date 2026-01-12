@@ -1,18 +1,8 @@
 import { api } from './browser-api.js';
+import { CONFIG } from '../config.js';
 
 // The system instruction for all models
-const SYSTEM_PROMPT = `You are a strict bookmark organizer. 
-Categorize the input into a hierarchical path using forward slashes.
-Example: "Development/Web/React" or "Recipes/Italian".
-Rules:
-1. Use standard categories.
-2. Max depth is 3.
-3. Reply ONLY with the path. No markdown, no punctuation.
-4. Ensure that categories are capitalized properly.
-5. Avoid using special characters in category names.
-6. Do not include any explanations or additional text.
-7. Use singular nouns where applicable.
-8. Avoid overly broad categories like "Other" or "General".`;
+const SYSTEM_PROMPT = CONFIG.SYSTEM_PROMPT;
 
 /**
  * Main Entry Point
@@ -37,14 +27,14 @@ export async function getCategoryFromAI(title, url) {
   try {
     switch (provider) {
       case 'gemini':
-        return await callGemini(apiKey, model || 'gemini-1.5-flash', userContent);
+        return await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
       case 'deepseek':
-        return await callOpenAICompatible(apiKey, model || 'deepseek-chat', 'https://api.deepseek.com/chat/completions', userContent);
+        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
       case 'ollama':
-        return await callOllama(apiKey || 'http://localhost:11434', model || 'llama3', userContent);
+        return await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
       case 'openai':
       default:
-        return await callOpenAICompatible(apiKey, model || 'gpt-4o-mini', 'https://api.openai.com/v1/chat/completions', userContent);
+        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
     }
   } catch (error) {
     console.error(`AI Error (${provider}):`, error);
@@ -83,7 +73,7 @@ async function callOpenAICompatible(key, model, endpoint, content) {
  * Strategy 2: Google Gemini (Specific JSON structure)
  */
 async function callGemini(key, model, content) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+  const url = `${CONFIG.PROVIDERS.GEMINI.API_BASE_URL}${model}:generateContent?key=${key}`;
   
   const response = await fetch(url, {
     method: "POST",
@@ -105,7 +95,7 @@ async function callGemini(key, model, content) {
  * Strategy 3: Ollama (Localhost)
  */
 async function callOllama(baseUrl, model, content) {
-  const url = `${baseUrl.replace(/\/$/, '')}/api/chat`; // Normalize URL
+  const url = `${baseUrl.replace(/\/$/, '')}${CONFIG.PROVIDERS.OLLAMA.API_PATH}`; // Normalize URL
 
   const response = await fetch(url, {
     method: "POST",
