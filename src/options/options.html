@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Bookmarks Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Smart Bookmarks</h2>
+    
+    <div class="form-group">
+      <label for="provider">AI Provider:</label>
+      <select id="provider">
+        <option value="openai">OpenAI (GPT-4o)</option>
+        <option value="gemini">Google Gemini</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="ollama">Ollama (Local)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="apiKey">API Key / URL:</label>
+      <input type="password" id="apiKey" />
+      <p class="hint" id="hintText">Stored locally. Never shared.</p>
+    </div>
+
+    <div class="form-group">
+      <label for="customModel">Model Name (Optional):</label>
+      <input type="text" id="customModel" placeholder="default" />
+    </div>
+
+    <button id="save">Save Settings</button>
+    <div id="status"></div>
+
+    <hr />
+
+    <h3>🧪 Debug Playground</h3>
+    <div class="form-group">
+      <input type="text" id="testTitle" placeholder="Title (e.g. React Docs)" />
+      <input type="text" id="testUrl" style="margin-top: 5px;" placeholder="URL (e.g. react.dev)" />
+    </div>
+
+    <button id="testBtn" class="secondary-btn">Test Configuration</button>
+    <div id="testResult" class="result-box"></div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
