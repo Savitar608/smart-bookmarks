@@ -63,9 +63,10 @@ git clone https://github.com/Savitar608/smart-bookmarks.git
 ### Option B: Firefox
 
 1. Clone the repository.
-2. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on...**.
-4. Select the `manifest.firefox.json` file inside the project folder.
+2. **Important:** Rename `manifest.firefox.json` to `manifest.json` (this will replace the default Chrome manifest).
+3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+4. Click **Load Temporary Add-on...**.
+5. Select the `manifest.json` file inside the project folder.
 
 ---
 
