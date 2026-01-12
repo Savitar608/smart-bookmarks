@@ -1,6 +1,3 @@
-Here is the full `README.md` file content, ready to copy and paste.
-
-```markdown
 # 🧠 Smart Bookmarks
 
 > **Stop drowning in "Unsorted Bookmarks". Let AI organize your web life.**
@@ -117,7 +114,3 @@ Contributions are welcome! Please open an issue to discuss major changes.
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-```
-
-```
