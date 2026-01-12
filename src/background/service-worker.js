@@ -32,16 +32,43 @@ api.bookmarks.onCreated.addListener(async (id, bookmark) => {
 });
 
 /**
- * Recursively creates folders. 
- * Starts searching from "Other Bookmarks" (ID '2' in Chrome) to keep the bar clean.
+ * Recursively creates folders.
+ * Uses getTree() to find the correct root folder safely on any browser.
  */
 async function ensureFolderHierarchy(path) {
   const parts = path.split('/');
-  let currentParentId = '2'; // Default to "Other Bookmarks"
+  let currentParentId;
 
-  // Firefox Note: '2' might not exist or correspond to "Other". 
-  // Ideally, we'd fetch the root tree, but this works for 90% of cases.
-  
+  // 1. Find the "Other Bookmarks" folder safely
+  try {
+    const tree = await api.bookmarks.getTree();
+    const rootNode = tree[0]; // The browser root (contains Menu, Toolbar, Other)
+    
+    // Find the folder usually called "Other Bookmarks" or "Unfiled"
+    // Chrome: id "2", Firefox: id "unfiled_____"
+    // We look for the one that ISN'T the Toolbar or Menu.
+    let otherFolder = rootNode.children.find(node => 
+      node.id === 'unfiled_____' || // Firefox standard
+      node.id === '2' ||            // Chrome standard
+      node.title === 'Other Bookmarks' || 
+      node.title === 'Other'
+    );
+
+    // Fallback: If we still can't find "Other", just use the last folder in the root list
+    // (Usually: 0=Menu, 1=Toolbar, 2=Other)
+    if (!otherFolder) {
+      otherFolder = rootNode.children[rootNode.children.length - 1];
+    }
+
+    currentParentId = otherFolder.id;
+    console.log(`Using Root Folder: ${otherFolder.title} (ID: ${currentParentId})`);
+
+  } catch (error) {
+    console.error("Critical: Could not find root folder.", error);
+    return null; // Stop if we can't find a place to put it
+  }
+
+  // 2. Walk down the path and create folders if missing
   for (const folderName of parts) {
     const children = await api.bookmarks.getChildren(currentParentId).catch(() => []);
     
@@ -57,5 +84,6 @@ async function ensureFolderHierarchy(path) {
       currentParentId = newFolder.id;
     }
   }
+  
   return currentParentId;
 }
