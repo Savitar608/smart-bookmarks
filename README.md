@@ -8,14 +8,6 @@
 
 **Smart Bookmarks** is a cross-browser extension that intercepts new bookmarks and uses Large Language Models (LLMs) to automatically categorize them into a recursive folder structure. It transforms a flat list of links into a well-organized knowledge base.
 
----
-
-## 📸 Demo
-
-*(Place a screenshot or GIF here showing a bookmark being saved and the folder automatically appearing)*
-
----
-
 ## ✨ Key Features
 
 * **🤖 Multi-LLM Support:** Choose your brain. Supports **OpenAI (GPT-4o)**, **Google Gemini** (Free Tier available), **DeepSeek**, and **Ollama** (Local Privacy).
