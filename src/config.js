@@ -35,7 +35,7 @@ export const CONFIG = {
             API_URL: 'https://api.deepseek.com/chat/completions'
         },
         GEMINI: {
-            DEFAULT_MODEL: 'gemini-2.5-flash',
+            DEFAULT_MODEL: 'gemini-2.5-flash-lite',
             API_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models/'
         },
         OLLAMA: {
