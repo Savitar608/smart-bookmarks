@@ -4,7 +4,8 @@ import { getCategoryFromAI } from '../utils/ai-classifier.js';
 const defaultSettings = {
   provider: 'openai',
   keys: { openai: '', gemini: '', deepseek: '', ollama: 'http://localhost:11434' },
-  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', ollama: 'llama3' }
+  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', ollama: 'llama3' },
+  appendTags: true
 };
 
 let currentSettings = { ...defaultSettings };
@@ -12,6 +13,7 @@ let currentSettings = { ...defaultSettings };
 const providerSelect = document.getElementById('provider');
 const apiKeyInput = document.getElementById('apiKey');
 const modelInput = document.getElementById('customModel');
+const appendTagsCheckbox = document.getElementById('appendTags');
 
 // Update UI when dropdown changes
 providerSelect.addEventListener('change', () => {
@@ -32,10 +34,16 @@ providerSelect.addEventListener('change', () => {
 // Save Settings
 document.getElementById('save').addEventListener('click', async () => {
   const provider = providerSelect.value;
+  
+  // 1. Update currentSettings object
   currentSettings.provider = provider;
   currentSettings.keys[provider] = apiKeyInput.value.trim();
   currentSettings.modelNames[provider] = modelInput.value.trim();
+  
+  // 2. CAPTURE THE CHECKBOX STATE
+  currentSettings.appendTags = appendTagsCheckbox.checked; 
 
+  // 3. Save to storage
   await api.storage.sync.set({ settings: currentSettings });
   
   const status = document.getElementById('status');
@@ -47,7 +55,6 @@ document.getElementById('save').addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', async () => {
   const data = await api.storage.sync.get('settings');
   if (data.settings) {
-    // Merge saved data with defaults (handles new fields in future updates)
     currentSettings = { 
         ...defaultSettings, 
         ...data.settings, 
@@ -55,8 +62,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         modelNames: { ...defaultSettings.modelNames, ...data.settings.modelNames }
     };
   }
+  
+  // Restore Provider UI
   providerSelect.value = currentSettings.provider;
   providerSelect.dispatchEvent(new Event('change'));
+
+  // RESTORE CHECKBOX STATE (Default to true if undefined)
+  if (currentSettings.appendTags !== undefined) {
+      appendTagsCheckbox.checked = currentSettings.appendTags;
+  } else {
+      appendTagsCheckbox.checked = true;
+  }
 });
 
 // Debug Logic
@@ -73,23 +89,19 @@ document.getElementById('testBtn').addEventListener('click', async () => {
       return;
   }
 
-  const res = await getCategoryFromAI(title, url);
-  
-  if (res) {
-    resultBox.textContent = ''; // Clear previous text safely
-
-    const label = document.createElement('strong');
-    label.textContent = 'AI Suggestion:';
-
-    const text = document.createTextNode(`\n📂 ${res}`);
-
-    resultBox.appendChild(label);
-    resultBox.appendChild(text);
-
-    resultBox.style.borderLeft = "4px solid green";
-  } else {
-    // resultBox.textContent = "Failed. Check Console/API Key.";
-    // resultBox.style.borderLeft = "4px solid red";
+  try {
+    const res = await getCategoryFromAI(title, url);
+    
+    if (res) {
+      resultBox.textContent = ''; 
+      const label = document.createElement('strong');
+      label.textContent = 'AI Suggestion:';
+      const text = document.createTextNode(`\n📂 ${res}`);
+      resultBox.appendChild(label);
+      resultBox.appendChild(text);
+      resultBox.style.borderLeft = "4px solid green";
+    }
+  } catch (err) {
     resultBox.textContent = "Error: " + err.message;
     resultBox.style.borderLeft = "4px solid red";
   }
