@@ -145,3 +145,6 @@ Thumbs.db
 # IDEs and editors
 .vscode/
 test/
+
+
+*.zip
