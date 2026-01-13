@@ -14,7 +14,7 @@
 * **📂 Recursive Categorization:** It doesn't just guess a category; it builds a path.
     * *Input:* A tutorial on React Hooks.
     * *Output:* Creates `Development > Web > React` folders automatically.
-* **🏷️ Auto-Tagging:** Appends searchable hashtags to bookmark titles (e.g., `How to Bake Cake #Recipes`) for instant Omnibox searching.
+* **🏷️ Auto-Tagging:** Appends searchable hashtags to bookmark titles (e.g., `How to Bake Cake #Recipes`), if the option is enabled, for instant Omnibox searching.
 * **🔒 Privacy-First Architecture:** Your API keys are stored in `chrome.storage.sync` (encrypted by the browser) and are never sent to any intermediate server.
 * **🧪 Debug Playground:** Includes a "Dry Run" mode in settings to test your prompts without cluttering your actual bookmarks.
 
