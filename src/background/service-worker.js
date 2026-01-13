@@ -1,40 +1,104 @@
 import { api } from '../utils/browser-api.js';
 import { getCategoryFromAI } from '../utils/ai-classifier.js';
 
-api.bookmarks.onCreated.addListener(async (id, bookmark) => {
-  // 1. Ignore folders or items without URLs
-  if (!bookmark.url) return;
+let processingTimers = {}; // Store timers by Bookmark ID
+const DELAY_MS = 2000; // 2-second wait for Brave/Chrome UI
 
-  console.log("Processing bookmark:", bookmark.title);
+// 1. CREATED: Start the timer
+api.bookmarks.onCreated.addListener((id, bookmark) => {
+  if (bookmark.url) {
+    console.log(`[${id}] Created. Starting AI timer...`);
+    scheduleProcessing(id);
+  }
+});
 
-  // 2. Ask AI for the category path
+// 2. CHANGED: Reset timer (User is typing in the popup)
+api.bookmarks.onChanged.addListener((id, changeInfo) => {
+  if (processingTimers[id]) {
+    console.log(`[${id}] User is typing. Resetting timer...`);
+    scheduleProcessing(id);
+  }
+});
+
+// 3. MOVED: CANCEL AI (User manually picked a folder)
+api.bookmarks.onMoved.addListener((id, moveInfo) => {
+  if (processingTimers[id]) {
+    console.log(`[${id}] Moved manually. AI Cancelled.`);
+    clearTimeout(processingTimers[id]);
+    delete processingTimers[id];
+  }
+});
+
+// 4. REMOVED: Clean up
+api.bookmarks.onRemoved.addListener((id) => {
+  if (processingTimers[id]) {
+    clearTimeout(processingTimers[id]);
+    delete processingTimers[id];
+  }
+});
+
+// TIMER LOGIC
+function scheduleProcessing(id) {
+  if (processingTimers[id]) clearTimeout(processingTimers[id]);
+
+  processingTimers[id] = setTimeout(async () => {
+    delete processingTimers[id]; // Timer done
+    
+    // Check if it still exists
+    try {
+      const [bookmark] = await api.bookmarks.get(id);
+      if (!bookmark) return;
+
+      console.log(`[${id}] Timer finished. AI taking over...`);
+      await processBookmark(id, bookmark); 
+    } catch (e) {
+      console.log("Bookmark gone:", e);
+    }
+  }, DELAY_MS);
+}
+
+// MAIN PROCESSING FUNCTION (Updated with Tagging Check & Safe Move)
+async function processBookmark(id, bookmark) {
+  // 1. Get Settings
+  const data = await api.storage.sync.get('settings');
+  const settings = data.settings || {};
+  
+  // 2. Get AI Category
   const categoryPath = await getCategoryFromAI(bookmark.title, bookmark.url);
 
   if (categoryPath) {
     try {
-      // 3. Find/Create folder structure
       const targetFolderId = await ensureFolderHierarchy(categoryPath);
+      
+      // 3. Safe Move (Helper function below)
+      await moveBookmarkSafely(id, targetFolderId);
 
-      // 4. Move the bookmark
-      await api.bookmarks.move(id, { parentId: targetFolderId });
-
-      // 5. Add Hashtag to Title (Searchable)
-      // Example: "Dev/Web/React" -> "#React"
-      // Get the user's preference
-      const settings = await api.storage.sync.get('settings');
-      const shouldAppendTags = settings.settings?.appendTags ?? true; // Default to true
-
-      // Only rename if the user wants it
+      // 4. Optional Tagging
+      const shouldAppendTags = settings.appendTags !== false; // Default to true
       if (shouldAppendTags) {
-        const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
-        const newTitle = `${bookmark.title} #${tag}`;
-        await api.bookmarks.update(id, { title: newTitle });
+         const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
+         if (!bookmark.title.includes(`#${tag}`)) {
+            const newTitle = `${bookmark.title} #${tag}`;
+            await api.bookmarks.update(id, { title: newTitle });
+         }
       }
+      
     } catch (err) {
       console.error("Smart Bookmarks Error:", err);
     }
   }
-});
+}
+
+// SAFE MOVE HELPER (For Brave/Chrome race conditions)
+async function moveBookmarkSafely(bookmarkId, targetFolderId) {
+  try {
+    await api.bookmarks.move(bookmarkId, { parentId: targetFolderId });
+  } catch (err) {
+    console.warn("Move failed (Race condition?). Retrying in 500ms...");
+    await new Promise(r => setTimeout(r, 500));
+    await api.bookmarks.move(bookmarkId, { parentId: targetFolderId });
+  }
+}
 
 /**
  * Recursively creates folders.
