@@ -20,11 +20,16 @@ api.bookmarks.onCreated.addListener(async (id, bookmark) => {
 
       // 5. Add Hashtag to Title (Searchable)
       // Example: "Dev/Web/React" -> "#React"
-      const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
-      const newTitle = `${bookmark.title} #${tag}`;
-      
-      await api.bookmarks.update(id, { title: newTitle });
-      
+      // Get the user's preference
+      const settings = await api.storage.sync.get('settings');
+      const shouldAppendTags = settings.settings?.appendTags ?? true; // Default to true
+
+      // Only rename if the user wants it
+      if (shouldAppendTags) {
+        const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
+        const newTitle = `${bookmark.title} #${tag}`;
+        await api.bookmarks.update(id, { title: newTitle });
+      }
     } catch (err) {
       console.error("Smart Bookmarks Error:", err);
     }
@@ -43,14 +48,14 @@ async function ensureFolderHierarchy(path) {
   try {
     const tree = await api.bookmarks.getTree();
     const rootNode = tree[0]; // The browser root (contains Menu, Toolbar, Other)
-    
+
     // Find the folder usually called "Other Bookmarks" or "Unfiled"
     // Chrome: id "2", Firefox: id "unfiled_____"
     // We look for the one that ISN'T the Toolbar or Menu.
-    let otherFolder = rootNode.children.find(node => 
+    let otherFolder = rootNode.children.find(node =>
       node.id === 'unfiled_____' || // Firefox standard
       node.id === '2' ||            // Chrome standard
-      node.title === 'Other Bookmarks' || 
+      node.title === 'Other Bookmarks' ||
       node.title === 'Other'
     );
 
@@ -71,7 +76,7 @@ async function ensureFolderHierarchy(path) {
   // 2. Walk down the path and create folders if missing
   for (const folderName of parts) {
     const children = await api.bookmarks.getChildren(currentParentId).catch(() => []);
-    
+
     let foundFolder = children.find(node => !node.url && node.title === folderName);
 
     if (foundFolder) {
@@ -84,6 +89,6 @@ async function ensureFolderHierarchy(path) {
       currentParentId = newFolder.id;
     }
   }
-  
+
   return currentParentId;
 }

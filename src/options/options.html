@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Smart Bookmarks Settings</title>
   <link rel="stylesheet" href="options.css">
 </head>
+
 <body>
   <div class="container">
     <h2>Smart Bookmarks</h2>
-    
+
     <div class="form-group">
       <label for="provider">AI Provider:</label>
       <select id="provider">
@@ -29,6 +31,13 @@
       <input type="text" id="customModel" placeholder="default" />
     </div>
 
+    <div class="setting-item">
+      <label>
+        <input type="checkbox" id="appendTags" checked>
+        Append AI Tags to Title (e.g. "Page Title #Tech")
+      </label>
+    </div>
+
     <button id="save">Save Settings</button>
     <div id="status"></div>
 
@@ -46,4 +55,5 @@
 
   <script type="module" src="options.js"></script>
 </body>
+
 </html>
