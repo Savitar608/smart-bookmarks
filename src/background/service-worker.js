@@ -66,9 +66,21 @@ async function processBookmark(id, bookmark) {
   // 2. Get AI Category
   const categoryPath = await getCategoryFromAI(bookmark.title, bookmark.url);
 
+  let cleanPath = categoryPath.trim();
+  
+  // 1. Remove Markdown code blocks (if Gemini adds them)
+  cleanPath = cleanPath.replace(/^```(text)?\n?/, '').replace(/\n?```$/, '');
+  
+  // 2. Remove "Category: " prefix (if DeepSeek/Claude adds it)
+  cleanPath = cleanPath.replace(/^Category:\s*/i, '');
+  
+  // 3. Remove quotes (if it returns "Development/Web")
+  cleanPath = cleanPath.replace(/^["']|["']$/g, '');
+
+
   if (categoryPath) {
     try {
-      const targetFolderId = await ensureFolderHierarchy(categoryPath);
+      const targetFolderId = await ensureFolderHierarchy(cleanPath);
       
       // 3. Safe Move (Helper function below)
       await moveBookmarkSafely(id, targetFolderId);
@@ -76,7 +88,7 @@ async function processBookmark(id, bookmark) {
       // 4. Optional Tagging
       const shouldAppendTags = settings.appendTags !== false; // Default to true
       if (shouldAppendTags) {
-         const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
+         const tag = cleanPath.split('/').pop().replace(/\s+/g, '');
          if (!bookmark.title.includes(`#${tag}`)) {
             const newTitle = `${bookmark.title} #${tag}`;
             await api.bookmarks.update(id, { title: newTitle });
