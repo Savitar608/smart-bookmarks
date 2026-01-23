@@ -13,7 +13,7 @@ api.bookmarks.onCreated.addListener((id, bookmark) => {
 });
 
 // 2. CHANGED: Reset timer (User is typing in the popup)
-api.bookmarks.onChanged.addListener((id, changeInfo) => {
+api.bookmarks.onChanged.addListener((id, _) => {
   if (processingTimers[id]) {
     console.log(`[${id}] User is typing. Resetting timer...`);
     scheduleProcessing(id);
