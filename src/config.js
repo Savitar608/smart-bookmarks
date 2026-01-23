@@ -36,7 +36,11 @@ export const CONFIG = {
         
         5. NAMING CONVENTIONS
            - Keep folder names short and noun-based.
-           - Avoid "General" or "Misc" folders unless absolutely necessary.`,
+           - Avoid "General" or "Misc" folders unless absolutely necessary.
+           
+        6. Output ONLY the path string (e.g., "Social Media/Reddit"). 
+            - DO NOT use Markdown formatting (no \`\`\` or bold).
+            - DO NOT provide introductory text.`,
 
     PROVIDERS: {
         OPENAI: {
