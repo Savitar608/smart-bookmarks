@@ -32,6 +32,9 @@ export async function getCategoryFromAI(title, url) {
         return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
       case 'ollama':
         return await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
+      case 'claude':
+        category = await callClaude(apiKey, model, SYSTEM_PROMPT, userContent);
+        break;
       case 'openai':
         return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
       default:
@@ -113,4 +116,31 @@ async function callOllama(baseUrl, model, content) {
   if (!response.ok) throw new Error(await response.text());
   const data = await response.json();
   return data.message.content.trim();
+}
+
+
+async function callClaude(apiKey, model, systemPrompt, userPrompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true' // Required for browser extensions
+    },
+    body: JSON.stringify({
+      model: model || 'claude-3-5-sonnet',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'Claude API Error');
+  }
+
+  const data = await response.json();
+  return data.content[0].text.trim();
 }
