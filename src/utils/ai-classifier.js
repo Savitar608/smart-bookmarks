@@ -23,6 +23,7 @@ export async function getCategoryFromAI(title, url) {
   }
 
   const userContent = `Title: ${title}\nURL: ${url}`;
+  let category;
 
   try {
     switch (provider) {
