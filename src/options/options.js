@@ -3,8 +3,8 @@ import { getCategoryFromAI } from '../utils/ai-classifier.js';
 
 const defaultSettings = {
   provider: 'openai',
-  keys: { openai: '', gemini: '', deepseek: '', ollama: 'http://localhost:11434' },
-  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', ollama: 'llama3' },
+  keys: { openai: '', gemini: '', deepseek: '', claude: '', ollama: 'http://localhost:11434' },
+  modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', claude: 'claude-3-5-sonnet', ollama: 'llama3' },
   appendTags: true
 };
 
