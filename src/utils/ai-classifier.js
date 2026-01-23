@@ -27,23 +27,30 @@ export async function getCategoryFromAI(title, url) {
   try {
     switch (provider) {
       case 'gemini':
-        return await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
+        category = await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
       case 'deepseek':
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
       case 'ollama':
-        return await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
+        category = await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
       case 'claude':
         category = await callClaude(apiKey, model, SYSTEM_PROMPT, userContent);
         break;
       case 'openai':
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
       default:
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
     }
   } catch (error) {
     console.error(`AI Error (${provider}):`, error);
     return null;
   }
+
+  // Clean and validate the output
+  return category.trim()
+    .replace(/^```(text)?\n?/, '') // Remove markdown
+    .replace(/\n?```$/, '')
+    .replace(/^Category:\s*/i, '')
+    .replace(/^["']|["']$/g, '');   // Remove quotes
 }
 
 // --- Strategies ---

@@ -57,47 +57,27 @@ function scheduleProcessing(id) {
   }, DELAY_MS);
 }
 
-// MAIN PROCESSING FUNCTION (Updated with Tagging Check & Safe Move)
+// MAIN PROCESSING FUNCTION (Updated with Safe Move)
 async function processBookmark(id, bookmark) {
   // 1. Get Settings
   const data = await api.storage.sync.get('settings');
-  const settings = data.settings || {};
   
   // 2. Get AI Category
   const categoryPath = await getCategoryFromAI(bookmark.title, bookmark.url);
 
-  let cleanPath = categoryPath.trim();
-  
-  // 1. Remove Markdown code blocks (if Gemini adds them)
-  cleanPath = cleanPath.replace(/^```(text)?\n?/, '').replace(/\n?```$/, '');
-  
-  // 2. Remove "Category: " prefix (if DeepSeek/Claude adds it)
-  cleanPath = cleanPath.replace(/^Category:\s*/i, '');
-  
-  // 3. Remove quotes (if it returns "Development/Web")
-  cleanPath = cleanPath.replace(/^["']|["']$/g, '');
-
-
   if (categoryPath) {
     try {
-      const targetFolderId = await ensureFolderHierarchy(cleanPath);
+      const targetFolderId = await ensureFolderHierarchy(categoryPath);
       
       // 3. Safe Move (Helper function below)
       await moveBookmarkSafely(id, targetFolderId);
 
-      // 4. Optional Tagging
-      const shouldAppendTags = settings.appendTags !== false; // Default to true
-      if (shouldAppendTags) {
-         const tag = cleanPath.split('/').pop().replace(/\s+/g, '');
-         if (!bookmark.title.includes(`#${tag}`)) {
-            const newTitle = `${bookmark.title} #${tag}`;
-            await api.bookmarks.update(id, { title: newTitle });
-         }
-      }
-      
+      console.log(`[${id}] Moved to "${categoryPath}" successfully.`);
     } catch (err) {
       console.error("Smart Bookmarks Error:", err);
     }
+  } else {
+    console.log(`[${id}] AI could not determine category.`);
   }
 }
 

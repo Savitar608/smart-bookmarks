@@ -5,7 +5,6 @@ const defaultSettings = {
   provider: 'openai',
   keys: { openai: '', gemini: '', deepseek: '', claude: '', ollama: 'http://localhost:11434' },
   modelNames: { openai: 'gpt-4o-mini', gemini: 'gemini-2.5-flash-lite', deepseek: 'deepseek-chat', claude: 'claude-3-5-sonnet-latest', ollama: 'llama3' },
-  appendTags: true
 };
 
 let currentSettings = { ...defaultSettings };
@@ -13,7 +12,6 @@ let currentSettings = { ...defaultSettings };
 const providerSelect = document.getElementById('provider');
 const apiKeyInput = document.getElementById('apiKey');
 const modelInput = document.getElementById('customModel');
-const appendTagsCheckbox = document.getElementById('appendTags');
 
 // Update UI when dropdown changes
 providerSelect.addEventListener('change', () => {
@@ -40,10 +38,7 @@ document.getElementById('save').addEventListener('click', async () => {
   currentSettings.keys[provider] = apiKeyInput.value.trim();
   currentSettings.modelNames[provider] = modelInput.value.trim();
   
-  // 2. CAPTURE THE CHECKBOX STATE
-  currentSettings.appendTags = appendTagsCheckbox.checked; 
-
-  // 3. Save to storage
+  // 2. Save to storage
   await api.storage.sync.set({ settings: currentSettings });
   
   const status = document.getElementById('status');
@@ -66,13 +61,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Restore Provider UI
   providerSelect.value = currentSettings.provider;
   providerSelect.dispatchEvent(new Event('change'));
-
-  // RESTORE CHECKBOX STATE (Default to true if undefined)
-  if (currentSettings.appendTags !== undefined) {
-      appendTagsCheckbox.checked = currentSettings.appendTags;
-  } else {
-      appendTagsCheckbox.checked = true;
-  }
 });
 
 // Debug Logic
