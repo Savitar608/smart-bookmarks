@@ -28,15 +28,19 @@ export async function getCategoryFromAI(title, url) {
     switch (provider) {
       case 'gemini':
         category = await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
+        break;
       case 'deepseek':
         category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
+        break;
       case 'ollama':
         category = await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
+        break;
       case 'claude':
         category = await callClaude(apiKey, model, SYSTEM_PROMPT, userContent);
         break;
       case 'openai':
         category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        break;
       default:
         category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
     }
@@ -127,7 +131,7 @@ async function callOllama(baseUrl, model, content) {
 
 
 async function callClaude(apiKey, model, systemPrompt, userPrompt) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch(CONFIG.PROVIDERS.CLAUDE.API_URL, {
     method: 'POST',
     headers: {
       'x-api-key': apiKey,
@@ -136,7 +140,7 @@ async function callClaude(apiKey, model, systemPrompt, userPrompt) {
       'anthropic-dangerous-direct-browser-access': 'true' // Required for browser extensions
     },
     body: JSON.stringify({
-      model: model || 'claude-3-5-sonnet-latest',
+      model: model || CONFIG.PROVIDERS.CLAUDE.DEFAULT_MODEL,
       max_tokens: 1024,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]

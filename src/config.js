@@ -55,6 +55,10 @@ export const CONFIG = {
             DEFAULT_MODEL: 'gemini-2.5-flash-lite',
             API_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models/'
         },
+        CLAUDE: {
+            DEFAULT_MODEL: 'claude-3-5-sonnet-latest',
+            API_URL: 'https://api.anthropic.com/v1/messages'
+        },
         OLLAMA: {
             DEFAULT_MODEL: 'llama3',
             DEFAULT_BASE_URL: 'http://localhost:11434',
