@@ -129,7 +129,7 @@ async function callClaude(apiKey, model, systemPrompt, userPrompt) {
       'anthropic-dangerous-direct-browser-access': 'true' // Required for browser extensions
     },
     body: JSON.stringify({
-      model: model || 'claude-3-5-sonnet',
+      model: model || 'claude-3-5-sonnet-latest',
       max_tokens: 1024,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
