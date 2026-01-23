@@ -130,7 +130,9 @@ async function callOllama(baseUrl, model, content) {
   return data.message.content.trim();
 }
 
-
+/**
+ * Strategy 4: Claude (Anthropic)
+ */
 async function callClaude(apiKey, model, systemPrompt, userPrompt) {
   const response = await fetch(CONFIG.PROVIDERS.CLAUDE.API_URL, {
     method: 'POST',
