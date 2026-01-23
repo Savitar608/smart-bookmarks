@@ -21,7 +21,7 @@ api.bookmarks.onChanged.addListener((id, _) => {
 });
 
 // 3. MOVED: CANCEL AI (User manually picked a folder)
-api.bookmarks.onMoved.addListener((id, moveInfo) => {
+api.bookmarks.onMoved.addListener((id, _) => {
   if (processingTimers[id]) {
     console.log(`[${id}] Moved manually. AI Cancelled.`);
     clearTimeout(processingTimers[id]);
