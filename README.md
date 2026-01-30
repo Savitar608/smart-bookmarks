@@ -39,26 +39,37 @@ You will need an API Key from one of the following providers:
 * **DeepSeek:** [Get API Key](https://platform.deepseek.com/).
 * **Ollama:** [Download Ollama](https://ollama.com/) (Free, runs locally).
 
-### Option A: Chrome / Edge / Brave
+### Option A: Install from Release (Recommended)
+
+1. Download the latest release from the [Releases Page](https://github.com/Savitar608/smart-bookmarks/releases).
+   - `smart-bookmarks-chrome.zip` for Chrome/Edge/Brave.
+   - `smart-bookmarks-firefox.zip` for Firefox.
+2. Unzip the file to a permanent location.
+3. Load the extension:
+   - **Chrome:** Enable "Developer mode" in `chrome://extensions`, click "Load unpacked", and select the unzipped folder.
+   - **Firefox:** Go to `about:debugging`, click "This Firefox", "Load Temporary Add-on...", and select the `manifest.json`.
+
+### Option B: Build from Source
 
 1. Clone this repository:
 ```bash
 git clone https://github.com/Savitar608/smart-bookmarks.git
+cd smart-bookmarks
 ```
 
+2. Build the extension:
+```bash
+# Make scripts executable
+chmod +x build-chrome.sh build-firefox.sh
 
-2. Open Chrome and navigate to `chrome://extensions/`.
-3. Toggle **Developer mode** (top right corner).
-4. Click **Load unpacked**.
-5. Select the `smart-bookmarks` folder from your computer.
+# Build for your browser
+./build-chrome.sh    # Output: dist/chrome
+./build-firefox.sh   # Output: dist/firefox
+```
 
-### Option B: Firefox
-
-1. Clone the repository.
-2. **Important:** Rename `manifest.firefox.json` to `manifest.json` (this will replace the default Chrome manifest).
-3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-4. Click **Load Temporary Add-on...**.
-5. Select the `manifest.json` file inside the project folder.
+3. Load the extension from the `dist/` folder:
+    - **Chrome:** Load `dist/chrome`.
+    - **Firefox:** Load `dist/firefox`.
 
 ---
 
