@@ -13,7 +13,7 @@ api.bookmarks.onCreated.addListener((id, bookmark) => {
 });
 
 // 2. CHANGED: Reset timer (User is typing in the popup)
-api.bookmarks.onChanged.addListener((id, changeInfo) => {
+api.bookmarks.onChanged.addListener((id, _) => {
   if (processingTimers[id]) {
     console.log(`[${id}] User is typing. Resetting timer...`);
     scheduleProcessing(id);
@@ -21,7 +21,7 @@ api.bookmarks.onChanged.addListener((id, changeInfo) => {
 });
 
 // 3. MOVED: CANCEL AI (User manually picked a folder)
-api.bookmarks.onMoved.addListener((id, moveInfo) => {
+api.bookmarks.onMoved.addListener((id, _) => {
   if (processingTimers[id]) {
     console.log(`[${id}] Moved manually. AI Cancelled.`);
     clearTimeout(processingTimers[id]);
@@ -57,11 +57,10 @@ function scheduleProcessing(id) {
   }, DELAY_MS);
 }
 
-// MAIN PROCESSING FUNCTION (Updated with Tagging Check & Safe Move)
+// MAIN PROCESSING FUNCTION (Updated with Safe Move)
 async function processBookmark(id, bookmark) {
   // 1. Get Settings
   const data = await api.storage.sync.get('settings');
-  const settings = data.settings || {};
   
   // 2. Get AI Category
   const categoryPath = await getCategoryFromAI(bookmark.title, bookmark.url);
@@ -73,19 +72,12 @@ async function processBookmark(id, bookmark) {
       // 3. Safe Move (Helper function below)
       await moveBookmarkSafely(id, targetFolderId);
 
-      // 4. Optional Tagging
-      const shouldAppendTags = settings.appendTags !== false; // Default to true
-      if (shouldAppendTags) {
-         const tag = categoryPath.split('/').pop().replace(/\s+/g, '');
-         if (!bookmark.title.includes(`#${tag}`)) {
-            const newTitle = `${bookmark.title} #${tag}`;
-            await api.bookmarks.update(id, { title: newTitle });
-         }
-      }
-      
+      console.log(`[${id}] Moved to "${categoryPath}" successfully.`);
     } catch (err) {
       console.error("Smart Bookmarks Error:", err);
     }
+  } else {
+    console.log(`[${id}] AI could not determine category.`);
   }
 }
 

@@ -23,24 +23,39 @@ export async function getCategoryFromAI(title, url) {
   }
 
   const userContent = `Title: ${title}\nURL: ${url}`;
+  let category;
 
   try {
     switch (provider) {
       case 'gemini':
-        return await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
+        category = await callGemini(apiKey, model || CONFIG.PROVIDERS.GEMINI.DEFAULT_MODEL, userContent);
+        break;
       case 'deepseek':
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.DEEPSEEK.DEFAULT_MODEL, CONFIG.PROVIDERS.DEEPSEEK.API_URL, userContent);
+        break;
       case 'ollama':
-        return await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
+        category = await callOllama(apiKey || CONFIG.PROVIDERS.OLLAMA.DEFAULT_BASE_URL, model || CONFIG.PROVIDERS.OLLAMA.DEFAULT_MODEL, userContent);
+        break;
+      case 'claude':
+        category = await callClaude(apiKey, model, SYSTEM_PROMPT, userContent);
+        break;
       case 'openai':
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        break;
       default:
-        return await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
+        category = await callOpenAICompatible(apiKey, model || CONFIG.PROVIDERS.OPENAI.DEFAULT_MODEL, CONFIG.PROVIDERS.OPENAI.API_URL, userContent);
     }
   } catch (error) {
     console.error(`AI Error (${provider}):`, error);
     return null;
   }
+
+  // Clean and validate the output
+  return category.trim()
+    .replace(/^```(text)?\n?/, '') // Remove markdown
+    .replace(/\n?```$/, '')
+    .replace(/^Category:\s*/i, '')
+    .replace(/^["']|["']$/g, '');   // Remove quotes
 }
 
 // --- Strategies ---
@@ -113,4 +128,33 @@ async function callOllama(baseUrl, model, content) {
   if (!response.ok) throw new Error(await response.text());
   const data = await response.json();
   return data.message.content.trim();
+}
+
+/**
+ * Strategy 4: Claude (Anthropic)
+ */
+async function callClaude(apiKey, model, systemPrompt, userPrompt) {
+  const response = await fetch(CONFIG.PROVIDERS.CLAUDE.API_URL, {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true' // Required for browser extensions
+    },
+    body: JSON.stringify({
+      model: model || CONFIG.PROVIDERS.CLAUDE.DEFAULT_MODEL,
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'Claude API Error');
+  }
+
+  const data = await response.json();
+  return data.content[0].text.trim();
 }

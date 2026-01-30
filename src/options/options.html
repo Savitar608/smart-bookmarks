@@ -14,6 +14,7 @@
         <option value="openai">OpenAI (GPT-4o)</option>
         <option value="gemini">Google Gemini</option>
         <option value="deepseek">DeepSeek</option>
+        <option value="claude">Anthropic Claude</option>
         <option value="ollama">Ollama (Local)</option>
       </select>
     </div>
@@ -27,13 +28,6 @@
     <div class="form-group">
       <label for="customModel">Model Name (Optional):</label>
       <input type="text" id="customModel" placeholder="default" />
-    </div>
-
-    <div class="setting-item" style="margin: 15px 0;">
-      <label style="display: flex; align-items: center; cursor: pointer;">
-        <input type="checkbox" id="appendTags" checked style="margin-right: 10px;">
-        Append AI Tags to Title (e.g. "Page Title #Tech")
-      </label>
     </div>
 
     <button id="save">Save Settings</button>

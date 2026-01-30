@@ -10,11 +10,10 @@
 
 ## ✨ Key Features
 
-* **🤖 Multi-LLM Support:** Choose your brain. Supports **OpenAI (GPT-4o)**, **Google Gemini** (Free Tier available), **DeepSeek**, and **Ollama** (Local Privacy).
+* **🤖 Multi-LLM Support:** Choose your brain. Supports **OpenAI (GPT-4o)**, **Anthropic Claude**, **Google Gemini** (Free Tier available), **DeepSeek**, and **Ollama** (Local Privacy).
 * **📂 Recursive Categorization:** It doesn't just guess a category; it builds a path.
     * *Input:* A tutorial on React Hooks.
     * *Output:* Creates `Development > Web > React` folders automatically.
-* **🏷️ Auto-Tagging:** Appends searchable hashtags to bookmark titles (e.g., `How to Bake Cake #Recipes`), if the option is enabled, for instant Omnibox searching.
 * **🔒 Privacy-First Architecture:** Your API keys are stored in `chrome.storage.sync` (encrypted by the browser) and are never sent to any intermediate server.
 * **🧪 Debug Playground:** Includes a "Dry Run" mode in settings to test your prompts without cluttering your actual bookmarks.
 
@@ -35,6 +34,7 @@ This project uses **Manifest V3** service workers to handle events asynchronousl
 You will need an API Key from one of the following providers:
 
 * **Google Gemini:** [Get a Free Key](https://aistudio.google.com/app/apikey) (Recommended for free usage).
+* **Anthropic Claude:** [Get API Key](https://console.anthropic.com/).
 * **OpenAI:** [Get API Key](https://platform.openai.com/api-keys) (Requires credit).
 * **DeepSeek:** [Get API Key](https://platform.deepseek.com/).
 * **Ollama:** [Download Ollama](https://ollama.com/) (Free, runs locally).
@@ -65,13 +65,17 @@ git clone https://github.com/Savitar608/smart-bookmarks.git
 ## ⚙️ Configuration
 
 1. Click the **Smart Bookmarks** icon in your toolbar and select **Options**.
-2. **Select Provider:** Choose between OpenAI, Gemini, DeepSeek, or Ollama.
+2. **Select Provider:** Choose between OpenAI, Claude, Gemini, DeepSeek, or Ollama.
 3. **Enter API Key:** Paste your key.
 * *Note for Ollama Users:* Ensure your local server is running (`ollama serve`). The default URL is `http://localhost:11434`.
 
 
-4. **(Optional) Test It:** Use the "Debug Playground" at the bottom of the page to categorize a fake URL and see the result.
+4. **(Optional) Test It:** Use the "Debug Playground" at the bottom of the page to categorize a test URL and see the result.
 5. Click **Save**.
+
+### Advanced Configuration (Developers)
+
+To change the default models (e.g. `gpt-4o` vs `gpt-3.5`), API endpoints, or the System Prompt used for classification, edit `src/config.js`. This allows you to customize the extension's behavior without diving into the core logic.
 
 ---
 
